@@ -65,6 +65,25 @@ pipeline {
                 '''
             }
         }
+
+        stage('Push to Docker Hub') {
+            steps {
+                // Same name every time: the new image replaces the previous :latest on Docker Hub.
+                // A Docker Hub problem must never fail the deployment or skip the e-mail.
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub',
+                                                      usernameVariable: 'DH_USER',
+                                                      passwordVariable: 'DH_PASS')]) {
+                        sh '''
+                            echo "$DH_PASS" | docker login -u "$DH_USER" --password-stdin
+                            docker tag $IMAGE:$GIT_COMMIT $DH_USER/$IMAGE:latest
+                            docker push $DH_USER/$IMAGE:latest
+                            docker logout
+                        '''
+                    }
+                }
+            }
+        }
     }
 
     post {
