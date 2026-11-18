@@ -40,6 +40,7 @@ def build_message():
         f"Job: {os.environ.get('JOB_NAME', 'MIDTERM-' + REG)}  build #{os.environ.get('BUILD_NUMBER', '?')}\n"
         f"Result: {STATUS}\n"
         f"Commit: {os.environ.get('GIT_COMMIT', 'unknown')}\n"
+        f"Author: {os.environ.get('AUTHOR_NAME', '?')} <{os.environ.get('AUTHOR_EMAIL', '?')}>\n"
         f"Build URL: {os.environ.get('BUILD_URL', '-')}\n"
         f"Metrics URL: http://16.16.10.42:8000/metrics\n\n"
         f"Live /metrics:\n{json.dumps(metrics, indent=2)}\n"

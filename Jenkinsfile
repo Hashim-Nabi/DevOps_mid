@@ -19,7 +19,6 @@ pipeline {
         STUDENT_ID = 'FA23-BDS-057'
         IMAGE      = 'midterm-api'
         CONTAINER  = 'midterm-api'
-        MAIL_TO    = 'qasimalik@gmail.com'
     }
 
     stages {
@@ -28,6 +27,11 @@ pipeline {
                 checkout scm
                 script {
                     env.GIT_COMMIT = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    env.AUTHOR_EMAIL = sh(script: "git log -1 --format=%ae", returnStdout: true).trim()
+                    env.AUTHOR_NAME  = sh(script: "git log -1 --format=%an", returnStdout: true).trim()
+                    // mail goes to whoever made the commit; fall back to the instructor if the address is unusable
+                    env.MAIL_TO = (env.AUTHOR_EMAIL && env.AUTHOR_EMAIL.contains('@') && !env.AUTHOR_EMAIL.contains('noreply')) ? env.AUTHOR_EMAIL : 'qasimalik@gmail.com'
+                    echo "Commit author: ${env.AUTHOR_NAME} <${env.AUTHOR_EMAIL}> -> notification to ${env.MAIL_TO}"
                 }
                 sh 'echo "Building commit $GIT_COMMIT"; wc -l dataset/train.csv; cat config.json'
             }
